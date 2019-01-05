@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example1
+
+  express:
+    image: "node:alpine"
+    working_dir: /usr/src/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./data:/usr/src/app
+    expose:
+      - "8081"
+    command: "npm start"

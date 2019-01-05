@@ -1,0 +1,19 @@
+{
+  "name": "reactstack",
+  "version": "1.0.0",
+  "description": "the express component of a fullstack app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobboF/react-stack.git"
+  },
+  "author": "RobboF",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RobboF/react-stack/issues"
+  },
+  "homepage": "https://github.com/RobboF/react-stack#readme"
+}
