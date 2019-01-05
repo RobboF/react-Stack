@@ -2,18 +2,33 @@ version: '3'
 services:
   mongo:
     image: mongo
+    volumes:
+    - mongodbdata:/data/db
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example1
+    networks:
+      backend:
+        aliases:
+          - mongo
+    command: mongod --replSet "rs" --auth --bind_ip_all
 
   express:
     image: "node:alpine"
     working_dir: /usr/src/app
-    environment:
-      - NODE_ENV=production
     volumes:
-      - ./data:/usr/src/app
+      - ./data/express:/usr/src/app
     expose:
       - "8081"
+    networks:
+      backend:
+        aliases:
+          - express
     command: "npm start"
+
+volumes:
+  mongodbdata:
+
+networks:
+  backend:

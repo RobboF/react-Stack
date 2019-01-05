@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/RobboF/react-stack/issues"
   },
-  "homepage": "https://github.com/RobboF/react-stack#readme"
+  "homepage": "https://github.com/RobboF/react-stack#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.2",
+    "pusher": "^2.2.0"
+  }
 }
