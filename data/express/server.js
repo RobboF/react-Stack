@@ -25,7 +25,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : true }));
 app.use('/api', api);
 
-mongoose.connect('mongodb://' + config.mongodbuser + ':' + config.mongodbpass + '@mongo:27017/tasksDb?replicaSet=rs')
+mongoose.connect('mongodb://' + config.mongodbuser + ':' + config.mongodbpass + '@mongo:27017/tasksDb?replicaSet=rs', { useNewUrlParser: true })
 
 const db = mongoose.connection;
 

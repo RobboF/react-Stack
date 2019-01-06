@@ -8,6 +8,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example1
+    ports: 
+      - "27017:27017"
     networks:
       backend:
         aliases:
@@ -20,15 +22,33 @@ services:
     volumes:
       - ./data/express:/usr/src/app
     expose:
-      - "8081"
+      - "9000"
     networks:
       backend:
         aliases:
           - express
+      frontend:
+        aliases:
+          - express
     command: "npm start"
+  
+  react:
+    image: "react:v2"
+    working_dir: /usr/src/my-app
+    volumes:
+      - ./data/react/my-app:/usr/src/my-app
+    ports:
+      - "3000:3000"
+    networks: 
+      frontend:
+        aliases:
+          - react
+    command: "npm start"
+    
 
 volumes:
   mongodbdata:
 
 networks:
   backend:
+  frontend:
