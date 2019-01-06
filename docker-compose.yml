@@ -23,6 +23,8 @@ services:
       - ./data/express:/usr/src/app
     expose:
       - "9000"
+    depends_on:
+      - "mongo"
     networks:
       backend:
         aliases:
@@ -39,11 +41,38 @@ services:
       - ./data/react/my-app:/usr/src/my-app
     ports:
       - "3000:3000"
+    depends_on:
+      - "express"
     networks: 
       frontend:
         aliases:
           - react
     command: "npm start"
+  
+  nginx:
+    image: nginx:1.15-alpine
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - "react"
+    networks:  
+      frontend:
+          aliases:
+            - nginx
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
     
 
 volumes:
@@ -52,3 +81,4 @@ volumes:
 networks:
   backend:
   frontend:
+    # external: true
