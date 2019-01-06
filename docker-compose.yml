@@ -4,7 +4,6 @@ services:
     image: mongo
     volumes:
     - mongodbdata:/data/db
-    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example1
@@ -21,8 +20,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./data/express:/usr/src/app
-    expose:
-      - "9000"
     depends_on:
       - "mongo"
     networks:
@@ -35,7 +32,7 @@ services:
     command: "npm start"
   
   react:
-    image: "react:v2"
+    image: "robbof/react:v2"
     working_dir: /usr/src/my-app
     volumes:
       - ./data/react/my-app:/usr/src/my-app
@@ -43,35 +40,66 @@ services:
       - "3000:3000"
     depends_on:
       - "express"
+    labels:
+      - traefik.enable=true
+      - "traefik.frontend.rule=Host:robbo.xyz"
+      - "traefik.port=3000"
+      - "traefik.frontend.passHostHeader=false"
     networks: 
       frontend:
         aliases:
           - react
     command: "npm start"
   
-  nginx:
-    image: nginx:1.15-alpine
+  traefik:
+    image: traefik:alpine
+    ports: 
+      - 80:80
+      - 443:443
+      - 8080:8080
     volumes:
-      - ./data/nginx:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - "react"
-    networks:  
+      - ./data/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/traefik/acme.json:/etc/traefik/acme/acme.json
+    networks:
+      backend:
+        aliases:
+          - traefik
       frontend:
-          aliases:
-            - nginx
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+        aliases:
+          - traefik
+  
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  whoami:
+    image: emilevauge/whoami
+    labels:
+      - traefik.enable.true
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+
+      
+  # nginx:
+  #   image: nginx:1.15-alpine
+  #   volumes:
+  #     - ./data/nginx:/etc/nginx/conf.d
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - "react"
+  #   networks:  
+  #     frontend:
+  #         aliases:
+  #           - nginx
+  #   command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  # certbot:
+  #   image: certbot/certbot
+  #   volumes:
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
     
 

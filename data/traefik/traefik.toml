@@ -1,0 +1,62 @@
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+        regex = "^http://(.*)"
+        replacement = "https://$1"
+    [entryPoints.http.forwardedHeaders]
+        trustedIPs = ["66.70.189.192"]
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+  [entryPoints.api]
+  address = ":8080"
+
+[api]
+entryPoint = "api"
+
+[acme]
+email = "rob.fisher@outlook.com"
+entryPoint = "https"
+storage = "/etc/traefik/acme/acme.json"
+caServer = "https://acme-v02.api.letsencrypt.org/directory"
+  [acme.httpChallenge]
+    entryPoint = "http"
+  [[acme.domains]]
+  main = "robbo.xyz"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "docker.localhost"
+exposedByDefault = false
+
+[file]
+watch = true
+
+[backends]
+  [backends.react_1]
+    [backends.react_1.servers]
+      [backends.react_1.servers.server0]
+      url = "http://react:3000"
+      weight = 10
+  [backends.api_1]
+    [backends.api_1.servers]
+      [backends.api_1.servers.server0]
+      url = "http://express:9000"
+      weight = 10
+
+[frontends]
+  [frontends.react_1]
+  backend = "react_1"
+    [frontends.react_1.routes]
+      [frontends.react_1.routes.route0]
+rule = "Host:robbo.xyz"
+
+  [frontends.express_1]
+  backend = "api_1"
+    [frontends.express_1.routes]
+      [frontends.express_1.routes.route0]
+rule = "Path:/api"

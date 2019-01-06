@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Pusher from 'pusher-js';
 import './App.css';
 
-const API_URL = 'http://express:9000/api/';
+const API_URL = 'https://robbo.xyz/api/';
 var config = require("./config.js")
 
 class App extends Component {
