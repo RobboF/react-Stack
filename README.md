@@ -4,5 +4,5 @@ I am playing around with Pusher and React. The purpose of this is to master the 
 
 #
 
-https://i.imgur.com/eFsxAB7.png![Alt text]( "ReactStack Diagram")
+![Alt text](https://i.imgur.com/eFsxAB7.png "ReactStack Diagram")
 
