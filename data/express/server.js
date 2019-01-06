@@ -3,13 +3,13 @@ const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 const api = require('./routes/api');
 const Pusher = require('pusher');
-
+const config = require('./config.js')
 const pusher = new Pusher({
-    appId       :   '',
-    key         :   '',
-    secret      :   '',
-    cluster     :   '',
-    useTLS      :   true,
+    appId       :   config.appId,
+    key         :   config.key,
+    secret      :   config.secret,
+    cluster     :   config.cluster,
+    useTLS      :   config.useTLS,
 });
 
 const channel = 'tasks';
@@ -25,7 +25,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : true }));
 app.use('/api', api);
 
-mongoose.connect('mongodb://mongo/tasksDb?replicaSet=rs')
+mongoose.connect('mongodb://' + config.mongodbuser + ':' + config.mongodbpass + '@mongo:27017/tasksDb?replicaSet=rs')
 
 const db = mongoose.connection;
 
@@ -41,6 +41,24 @@ db.once('open', () =>{
 
     changeStream.on('change', (change) => {
         console.log(change)
+        if (change.operationType === 'insert'){
+            const task = change.fullDocument;
+            pusher.trigger(
+                channel,
+                'inserted',
+                {
+                    id: task._id,
+                    task: task.task,
+                }
+            );
+        } else if(change.operationType === 'delete'){
+            pusher.trigger(
+                channel,
+                'deleted',
+                change,documentKey._id
+            );
+        }
+        
     })
 
 });
