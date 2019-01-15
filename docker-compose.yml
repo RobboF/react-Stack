@@ -30,6 +30,13 @@ services:
         aliases:
           - express
     command: "npm start"
+    labels:
+       - traefik.enable=true
+       - "traefik.frontend.rule=PathPrefix:/api;Host:robbo.xyz"
+       - "traefik.port=9000"
+       - "traefik.backend=express"
+       - "traefik.frontend.priority=20"
+
   
   react:
     image: "robbof/react:v2"
@@ -45,6 +52,8 @@ services:
       - "traefik.frontend.rule=Host:robbo.xyz"
       - "traefik.port=3000"
       - "traefik.frontend.passHostHeader=false"
+      - "traefik.frontend.priority=10"
+
     networks: 
       frontend:
         aliases:
@@ -68,40 +77,18 @@ services:
       frontend:
         aliases:
           - traefik
-  
+    labels:
+        - traefik.enable=true
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Path:/traefik"
+        - "traefik.backend=traefikb_1"
+
 
   whoami:
     image: emilevauge/whoami
     labels:
       - traefik.enable.true
       - "traefik.frontend.rule=Host:whoami.docker.localhost"
-
-      
-  # nginx:
-  #   image: nginx:1.15-alpine
-  #   volumes:
-  #     - ./data/nginx:/etc/nginx/conf.d
-  #     - ./data/certbot/conf:/etc/letsencrypt
-  #     - ./data/certbot/www:/var/www/certbot
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   depends_on:
-  #     - "react"
-  #   networks:  
-  #     frontend:
-  #         aliases:
-  #           - nginx
-  #   command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
-  # certbot:
-  #   image: certbot/certbot
-  #   volumes:
-  #     - ./data/certbot/conf:/etc/letsencrypt
-  #     - ./data/certbot/www:/var/www/certbot
-  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-    
 
 volumes:
   mongodbdata:
